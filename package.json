@@ -3,10 +3,14 @@
   "version": "0.0.1",
   "description": "Awesome project developed with TypeORM.",
   "devDependencies": {
+    "@types/bcryptjs": "^2.4.2",
+    "@types/jest": "^23.3.10",
     "@types/node": "^10.12.18",
     "@types/uuid": "^3.4.4",
     "gql2ts": "^1.10.1",
+    "jest": "^23.6.0",
     "nodemon": "^1.18.9",
+    "ts-jest": "^23.10.5",
     "ts-node": "7.0.1",
     "typescript": "3.2.2"
   },
@@ -20,7 +24,12 @@
     "uuid": "^3.3.2"
   },
   "scripts": {
-    "start": "nodemon --exec ts-node src/index.ts",
+    "start": "NODE_ENV=development nodemon --exec ts-node src/index.ts",
+    "test-server": "NODE_ENV=test ts-node src/index.ts",
+    "test": "NODE_ENV=test jest",
     "gen-schema-types": "gql2ts src/schema.graphql -o src/types/schema.d.ts"
+  },
+  "jest": {
+    "preset": "ts-jest"
   }
 }
