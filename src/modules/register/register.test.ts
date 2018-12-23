@@ -17,9 +17,10 @@ const password = "jalksdf";
 
 const mutation = `
 mutation {
-  register(email: "${email}", password: "${password}")
+  register(email: "${email}", password: "${password}") {
   path
   message
+  }
 }
 `;
 
