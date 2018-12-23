@@ -1,11 +1,12 @@
 import * as bcrypt from 'bcryptjs';
-import { ResolverMap } from "./types/graphql-utils";
-import { User } from './entity/User';
+import { User } from '../../entity/User';
+import { ResolverMap } from '../../types/graphql-utils';
 
 export const resolvers: ResolverMap = {
   Query: {
-    hello: (_: any, { name }) => `Bye ${name || 'World'}`
+    bye: () => "bye"
   },
+
   Mutation: {
     register: async (_, { email, password }) => {
       const hashedPassword = await bcrypt.hash(password, 10);
@@ -16,14 +17,6 @@ export const resolvers: ResolverMap = {
 
       await user.save();
       return true;
-     }
+    }
   }
 };
-
-
-/*
-mutation{
-  register(email: "bob@bob.com", password: "bob")
-}
-
-*/
