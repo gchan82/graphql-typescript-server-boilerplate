@@ -3,11 +3,11 @@ import * as yup from 'yup';
 import { ResolverMap } from '../../types/graphql-utils';
 import { User } from '../../entity/User';
 import {formatYupError} from '../../utils/formatYupError';
-import { duplicateEmail, emailNotLongEnough, invalidEmail } from './errorMessages';
+import { duplicateEmail, emailNotLongEnough, invalidEmail, passwordNotLongEnough } from './errorMessages';
 
 const schema = yup.object().shape({
   email: yup.string().min(3, emailNotLongEnough).max(255).email(invalidEmail),
-  password: yup.string().min(3).max(255)
+  password: yup.string().min(3, passwordNotLongEnough).max(255)
 });
 
 export const resolvers: ResolverMap = {
@@ -19,7 +19,7 @@ export const resolvers: ResolverMap = {
     register: async (_, args) => {
 
       try {
-        await schema.validate(args, { abortEarly: true });
+        await schema.validate(args, { abortEarly: false });
       } catch (err) {
         return formatYupError(err);
       }

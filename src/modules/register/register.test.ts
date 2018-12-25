@@ -3,7 +3,7 @@ import { request } from 'graphql-request';
 import { User } from '../../entity/User';
 import { startServer } from '../../startServer';
 import { AddressInfo } from 'net';
-import { emailNotLongEnough, duplicateEmail, invalidEmail } from './errorMessages';
+import { emailNotLongEnough, duplicateEmail, invalidEmail, passwordNotLongEnough } from './errorMessages';
 
 let getHost = () => '';
 
@@ -45,21 +45,47 @@ test('Register user', async () => {
 
   //catch bad email
   const response3: any = await request(getHost(), mutation("b", password));
-  // expect(response3.register).toHaveLength(1);
-  // expect(response3.register[0]).toEqual({
-  //   path: "email",
-  //   message: emailNotLongEnough
-  // });
   expect(response3).toEqual({
     register: [
       {
-      path: "email",
-      message: emailNotLongEnough
+        path: "email",
+        message: emailNotLongEnough
       },
       {
-      path: "email",
-      message: invalidEmail
+        path: "email",
+        message: invalidEmail
       }
     ]
-  })
+  });
+
+  //catch bad password
+  const response4: any = await request(getHost(), mutation(email, "b"));
+  expect(response4).toEqual({
+    register: [
+      {
+        path: "password",
+        message: passwordNotLongEnough
+      }
+    ]
+  });
+
+  //catch bad password and bad email
+  const response5: any = await request(getHost(), mutation("b1", "b2"));
+  expect(response5).toEqual({
+    register: [
+      {
+        path: "email",
+        message: emailNotLongEnough
+      },
+      {
+        path: "email",
+        message: invalidEmail
+      },
+      {
+        path: "password",
+        message: passwordNotLongEnough
+      }
+    ]
+  });
 });
+
