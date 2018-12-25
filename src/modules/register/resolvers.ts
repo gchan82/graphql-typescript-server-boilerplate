@@ -1,3 +1,5 @@
+// Part 10 - 6:47 - vim - line finder
+
 import * as bcrypt from 'bcryptjs';
 import * as yup from 'yup';
 import { ResolverMap } from '../../types/graphql-utils';
@@ -29,7 +31,7 @@ export const resolvers: ResolverMap = {
   },
 
   Mutation: {
-    register: async (_, args, {redis, url}) => {
+    register: async (_, args, { redis, url }) => {
       try {
         await schema.validate(args, { abortEarly: false });
       } catch (err) {
@@ -59,7 +61,7 @@ export const resolvers: ResolverMap = {
 
       await user.save();
 
-      const link = await createConfirmEmailLink(url, user.id, redis)
+      await createConfirmEmailLink(url, user.id, redis);
 
       return null;
     }

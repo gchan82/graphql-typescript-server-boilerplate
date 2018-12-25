@@ -11,6 +11,7 @@ import { GraphQLSchema } from 'graphql';
 import * as Redis from 'ioredis';
 
 import { createTypeormConn } from './utils/createTypeormConn';
+import { User } from './entity/User';
 
 export const startServer = async () => {
   const schemas: GraphQLSchema[] = [];
