@@ -2,22 +2,34 @@ import * as bcrypt from 'bcryptjs';
 import * as yup from 'yup';
 import { ResolverMap } from '../../types/graphql-utils';
 import { User } from '../../entity/User';
-import {formatYupError} from '../../utils/formatYupError';
-import { duplicateEmail, emailNotLongEnough, invalidEmail, passwordNotLongEnough } from './errorMessages';
+import { formatYupError } from '../../utils/formatYupError';
+import {
+  duplicateEmail,
+  emailNotLongEnough,
+  invalidEmail,
+  passwordNotLongEnough
+} from './errorMessages';
+import { createConfirmEmailLink } from '../../utils/createConfirmEmailLink';
 
 const schema = yup.object().shape({
-  email: yup.string().min(3, emailNotLongEnough).max(255).email(invalidEmail),
-  password: yup.string().min(3, passwordNotLongEnough).max(255)
+  email: yup
+    .string()
+    .min(3, emailNotLongEnough)
+    .max(255)
+    .email(invalidEmail),
+  password: yup
+    .string()
+    .min(3, passwordNotLongEnough)
+    .max(255)
 });
 
 export const resolvers: ResolverMap = {
   Query: {
-    bye: () => "bye"
+    bye: () => 'bye'
   },
 
   Mutation: {
-    register: async (_, args) => {
-
+    register: async (_, args, {redis, url}) => {
       try {
         await schema.validate(args, { abortEarly: false });
       } catch (err) {
@@ -26,12 +38,15 @@ export const resolvers: ResolverMap = {
 
       const { email, password } = args;
 
-      const userAlreadyExists = await User.findOne({ where: { email }, select: ["id"] });
+      const userAlreadyExists = await User.findOne({
+        where: { email },
+        select: ['id']
+      });
 
       if (userAlreadyExists) {
         return [
           {
-            path: "email",
+            path: 'email',
             message: duplicateEmail
           }
         ];
@@ -39,10 +54,13 @@ export const resolvers: ResolverMap = {
       const hashedPassword = await bcrypt.hash(password, 10);
       const user = User.create({
         email,
-        password: hashedPassword,
+        password: hashedPassword
       });
 
       await user.save();
+
+      const link = await createConfirmEmailLink(url, user.id, redis)
+
       return null;
     }
   }

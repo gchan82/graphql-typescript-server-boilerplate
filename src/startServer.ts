@@ -1,24 +1,49 @@
-import { importSchema } from 'graphql-import'
+// Part 9 10:02 - issues with line 25
+// Part 9 14:32 - last position - line 36
+// Part 9 18:40 - updates to resolvers, graphql-utils.d.ts, startServer.ts
+
+import { importSchema } from 'graphql-import';
 import { GraphQLServer } from 'graphql-yoga';
 import * as path from 'path';
 import * as fs from 'fs';
-import {mergeSchemas, makeExecutableSchema} from 'graphql-tools';
+import { mergeSchemas, makeExecutableSchema } from 'graphql-tools';
 import { GraphQLSchema } from 'graphql';
+import * as Redis from 'ioredis';
 
-import { createTypeormConn } from "./utils/createTypeormConn";
+import { createTypeormConn } from './utils/createTypeormConn';
 
 export const startServer = async () => {
   const schemas: GraphQLSchema[] = [];
-  const folders = fs.readdirSync(path.join(__dirname, "./modules"));
-  folders.forEach((folder) => {
+  const folders = fs.readdirSync(path.join(__dirname, './modules'));
+  folders.forEach(folder => {
     const { resolvers } = require(`./modules/${folder}/resolvers`);
-    const typeDefs = importSchema(path.join(__dirname, `./modules/${folder}/schema.graphql`));
-    schemas.push(makeExecutableSchema({resolvers, typeDefs}));
-  })
+    const typeDefs = importSchema(
+      path.join(__dirname, `./modules/${folder}/schema.graphql`)
+    );
+    schemas.push(makeExecutableSchema({ resolvers, typeDefs }));
+  });
 
-  const server = new GraphQLServer({ schema: mergeSchemas({schemas}) })
+  const redis = new Redis();
+
+  const server = new GraphQLServer({
+    schema: mergeSchemas({ schemas }),
+    context: ({ request }) => ({
+      redis,
+      url: request.protocol + '://' + request.get('host')
+    })
+  });
+
+  server.express.get('/confirm/:id', (req, res) => {
+    const { id } = req.params;
+    const userid = await redis.get(id);
+    await User.update({ id: userId }, { confirmed: true });
+    res.send('ok');
+  });
+
   await createTypeormConn();
-  const app = await server.start({ port: process.env.NODE_ENV === "test" ? 0 : 4000 });
+  const app = await server.start({
+    port: process.env.NODE_ENV === 'test' ? 0 : 4000
+  });
   console.log('Server is running on localhost:4000');
 
   return app;
