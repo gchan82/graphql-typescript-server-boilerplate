@@ -58,8 +58,12 @@ export const startServer = async () => {
   server.express.get('/confirm/:id', async (req, res) => {
     const { id } = req.params;
     const userId = await redis.get(id);
-    await User.update({ id: userId! }, { confirmed: true });
-    res.send('ok');
+    if (userId) {
+      await User.update({ id: userId }, { confirmed: true });
+      res.send('ok');
+    } else {
+      res.send('invalid');
+    }
   });
 
   await createTypeormConn();
