@@ -16,4 +16,4 @@ export const genSchema = () => {
   });
 
   return mergeSchemas({ schemas });
-}
+};

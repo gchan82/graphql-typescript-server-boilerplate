@@ -1,6 +1,3 @@
-// part 11 (9:00) - fixed.
-// part 12 - 0:00
-
 import * as Redis from 'ioredis';
 import fetch from 'node-fetch';
 import {Connection} from 'typeorm';
@@ -28,11 +25,10 @@ conn.close();
 });
 
   test("Make sure it confirms user and clears key in Redis", async () => {
-    const redis = new Redis();
     const url = await createConfirmEmailLink(
       process.env.TEST_HOST as string,
       userId,
-      redis,
+      redis
     );
 
     const response = await fetch(url);
