@@ -1,7 +1,7 @@
 import * as SparkPost from 'sparkpost';
 const client = new SparkPost(process.env.SPARKPOST_API_KEY);
 
-export const sendEmail = async (recipient: string, email: string) => {
+export const sendEmail = async (recipient: string, url: string) => {
 
   const response = await client.transmissions.send({
     options: {
@@ -20,7 +20,7 @@ export const sendEmail = async (recipient: string, email: string) => {
       </html>`
     },
     recipients: [
-      { address: 'recipient' }
+      { address: recipient }
     ]
   });
   console.log(response);
